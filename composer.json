@@ -1,8 +1,8 @@
 {
-    "name": "xupegroup/boostly-laravel",
+    "name": "boostly-hu/laravel",
     "description": "Boostly integráció Laravelhez — kampány-snippet beágyazása és lead-webhookok fogadása aláírás-ellenőrzéssel.",
     "keywords": ["boostly", "laravel", "webhook", "leads", "popup", "marketing"],
-    "homepage": "https://github.com/xupegroup/boostly-laravel",
+    "homepage": "https://github.com/boostly-hu/laravel",
     "license": "MIT",
     "authors": [
         {

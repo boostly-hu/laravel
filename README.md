@@ -6,7 +6,7 @@ lead-webhookok fogadása beépített HMAC-aláírás-ellenőrzéssel.
 ## Telepítés
 
 ```bash
-composer require xupegroup/boostly-laravel
+composer require boostly-hu/laravel
 ```
 
 A csomag auto-discovery-vel regisztrálódik. A config publikálása opcionális:
