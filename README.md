@@ -113,6 +113,49 @@ Extra middleware-t a configban adhatsz (az aláírás-ellenőrzés mindig fut):
 ],
 ```
 
+## Multi-tenant / több webáruház
+
+Ha egy kódbázison több webáruház (tenant) fut, és **tenant-onként más a webhook
+secret** (jellemzően adatbázisban tárolva, nem `.env`-ben), két opciód van.
+
+### A) Saját webhook-endpoint
+
+Kapcsold ki a beépített route-ot, és vidd a webhookot a host-appban
+(így a csomagból csak a `BoostlyLead` DTO-t + a `BoostlyLeadReceived` eventet
+használod):
+
+```dotenv
+BOOSTLY_WEBHOOK_ENABLED=false
+```
+
+### B) Beépített route + per-tenant secret-resolver
+
+Ha a beépített route-ot szeretnéd használni, de a secret futásidőben,
+tenant-onként dől el, írd felül a `BoostlySecretResolver`-t a host-app egy
+service providerében. A middleware ezen keresztül oldja fel a titkot a beérkező
+request alapján; `null` válasz → **403** (nincs integráció ehhez a kéréshez):
+
+```php
+use Boostly\Laravel\Contracts\BoostlySecretResolver;
+use Illuminate\Http\Request;
+
+$this->app->bind(BoostlySecretResolver::class, function () {
+    return new class implements BoostlySecretResolver {
+        public function resolve(Request $request): ?string
+        {
+            // pl. a kérés domainjéből feloldott tenant secretje
+            $tenant = app(\App\Services\Tenancy\TenantResolver::class)
+                ->fromHost($request->getHost());
+
+            return $tenant?->boostly_webhook_secret;
+        }
+    };
+});
+```
+
+> Alapból a `ConfigSecretResolver` fut, ami a `BOOSTLY_WEBHOOK_SECRET`-et
+> használja — vagyis az egyszeri `.env`-es beállítás változtatás nélkül működik.
+
 ## Tesztek
 
 ```bash

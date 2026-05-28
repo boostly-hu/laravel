@@ -40,26 +40,41 @@ class Boostly
     }
 
     /**
-     * A payloadhoz tartozó aláírás kiszámítása a konfigurált secrettel,
-     * a Boostly szerver formátumában: "sha256=<hex>".
+     * Aláírás kiszámítása egy EXPLICIT secrettel, a Boostly szerver
+     * formátumában: "sha256=<hex>".
      */
-    public function signature(string $payload): string
+    public function signatureFor(string $payload, string $secret): string
     {
-        return 'sha256='.hash_hmac('sha256', $payload, (string) config('boostly.webhook_secret'));
+        return 'sha256='.hash_hmac('sha256', $payload, $secret);
     }
 
     /**
-     * Beérkező webhook aláírásának ellenőrzése (timing-safe).
+     * Aláírás ellenőrzése egy EXPLICIT secrettel (timing-safe).
+     * A $payload a NYERS kérés-body legyen, nem újraszerializált adat.
+     */
+    public function verifySignatureWith(string $payload, ?string $signature, ?string $secret): bool
+    {
+        if ($secret === null || $secret === '' || $signature === null || $signature === '') {
+            return false;
+        }
+
+        return hash_equals($this->signatureFor($payload, $secret), $signature);
+    }
+
+    /**
+     * A payloadhoz tartozó aláírás a KONFIGURÁLT secrettel (kényelmi metódus).
+     */
+    public function signature(string $payload): string
+    {
+        return $this->signatureFor($payload, (string) config('boostly.webhook_secret'));
+    }
+
+    /**
+     * Beérkező webhook aláírásának ellenőrzése a KONFIGURÁLT secrettel.
      * A $payload a NYERS kérés-body legyen, nem újraszerializált adat.
      */
     public function verifySignature(string $payload, ?string $signature): bool
     {
-        $secret = (string) config('boostly.webhook_secret');
-
-        if ($secret === '' || $signature === null || $signature === '') {
-            return false;
-        }
-
-        return hash_equals($this->signature($payload), $signature);
+        return $this->verifySignatureWith($payload, $signature, config('boostly.webhook_secret') ?: null);
     }
 }
