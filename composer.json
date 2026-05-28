@@ -1,0 +1,47 @@
+{
+    "name": "xupegroup/boostly-laravel",
+    "description": "Boostly integráció Laravelhez — kampány-snippet beágyazása és lead-webhookok fogadása aláírás-ellenőrzéssel.",
+    "keywords": ["boostly", "laravel", "webhook", "leads", "popup", "marketing"],
+    "homepage": "https://github.com/xupegroup/boostly-laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Xupe",
+            "email": "kevin.krizsanszki@xupe.hu"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^10.0|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Boostly\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Boostly\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Boostly\\Laravel\\BoostlyServiceProvider"
+            ],
+            "aliases": {
+                "Boostly": "Boostly\\Laravel\\Facades\\Boostly"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

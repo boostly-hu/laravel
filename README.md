@@ -1,0 +1,125 @@
+# Boostly for Laravel
+
+Boostly-integráció Laravelhez: kampány-snippet beágyazása egy Blade-direktívával, és
+lead-webhookok fogadása beépített HMAC-aláírás-ellenőrzéssel.
+
+## Telepítés
+
+```bash
+composer require xupegroup/boostly-laravel
+```
+
+A csomag auto-discovery-vel regisztrálódik. A config publikálása opcionális:
+
+```bash
+php artisan vendor:publish --tag=boostly-config
+```
+
+## Konfiguráció
+
+`.env`:
+
+```dotenv
+BOOSTLY_URL=https://app.boostly.io
+BOOSTLY_SITE_TOKEN=az-oldalad-publikus-tokenje
+BOOSTLY_WEBHOOK_SECRET=a-webhook-vegpont-titka
+```
+
+- **`BOOSTLY_URL`** — a Boostly példány alap-URL-je (innen töltődik a `snippet.js`).
+- **`BOOSTLY_SITE_TOKEN`** — az oldalhoz tartozó publikus token (Boostly admin → oldal).
+- **`BOOSTLY_WEBHOOK_SECRET`** — a webhook-végpont titka (Boostly admin → webhook). Enélkül
+  minden beérkező webhook **403**-at kap.
+
+## 1) Snippet beágyazása
+
+A layout `<head>` (vagy a `</body>` elé) Blade-sablonjába:
+
+```blade
+@boostlySnippet
+```
+
+Ez ezt rendereli:
+
+```html
+<script async src="https://app.boostly.io/snippet.js?token=AZ-OLDAL-TOKENJE"></script>
+```
+
+Másik tokent is megadhatsz (pl. multi-site):
+
+```blade
+@boostlySnippet($oldal->boostly_token)
+```
+
+Vagy a facade-dal, programból:
+
+```php
+use Boostly\Laravel\Facades\Boostly;
+
+Boostly::snippetTag();          // \Illuminate\Support\HtmlString
+Boostly::snippetUrl('token');   // string
+```
+
+## 2) Lead-webhook fogadása
+
+A csomag automatikusan regisztrál egy route-ot:
+
+```
+POST /boostly/webhook
+```
+
+Ezt add meg a Boostly adminban a webhook-végpont URL-jeként
+(pl. `https://sajat-oldalad.hu/boostly/webhook`). Az útvonal és a route engedélyezése
+a configban állítható (`boostly.webhook.path`, `boostly.webhook.enabled`).
+
+A beérkező (és aláírás-ellenőrzött) leadre a `BoostlyLeadReceived` event sül el. Iratkozz fel rá,
+és innen küldd tovább a leadet (CRM, hírlevél, saját tábla, stb.):
+
+```php
+use Boostly\Laravel\Events\BoostlyLeadReceived;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(function (BoostlyLeadReceived $event) {
+    $lead = $event->lead;
+
+    $lead->email;            // string|null
+    $lead->name;             // string|null
+    $lead->fields;           // array<string,string> — beküldött mezők
+    $lead->coupon;           // string|null
+    $lead->consentAccepted;  // bool
+    $lead->consentText;      // string|null  (GDPR audit)
+    $lead->campaignId;
+    $lead->variantId;
+    $lead->siteId;
+    $lead->raw;              // a teljes nyers payload
+});
+```
+
+> A `BoostlyLeadReceived` egy egyszerű event-osztály — kösd hozzá a listenered az
+> `EventServiceProvider`-ben is, ha úgy kényelmesebb.
+
+### Aláírás-ellenőrzés
+
+Minden beérkező kérés átmegy a `VerifyBoostlySignature` middleware-en, ami az
+`X-Boostly-Signature: sha256=<hmac>` fejlécet ellenőrzi a **nyers** kérés-body-n,
+HMAC-SHA256-tal, a `BOOSTLY_WEBHOOK_SECRET` titkkal (timing-safe `hash_equals`).
+Hibás vagy hiányzó aláírás → **403**.
+
+Extra middleware-t a configban adhatsz (az aláírás-ellenőrzés mindig fut):
+
+```php
+// config/boostly.php
+'webhook' => [
+    'middleware' => ['throttle:60,1'],
+],
+```
+
+## Tesztek
+
+```bash
+composer install
+vendor/bin/phpunit
+```
+
+## Licenc
+
+MIT
