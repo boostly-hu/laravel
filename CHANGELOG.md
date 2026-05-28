@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.0
+
+A `BoostlyLead` DTO új mezőkkel bővült, a Boostly szerver bővített
+`lead_submit` payloadjához. **Nincs breaking change** — csak additív; régebbi
+Boostly-szerverrel (ahol a payloadban még nincsenek az új kulcsok) az új
+property-k egyszerűen `null`-ok.
+
+### Új DTO-mezők
+
+- **`campaignName`** ← `payload['campaign_name']` (ember által olvasható kampánynév)
+- **`consentAt`** ← `payload['metadata']['consent']['at']` (a beleegyezés ideje,
+  ISO 8601 UTC — a GDPR-audithoz, NEM a webhook-küldés ideje)
+- **`ip`** ← `payload['metadata']['ip']`
+- **`userAgent`** ← `payload['metadata']['user_agent']`
+
+Ezeket a Boostly szerver a payload-bővítő verziótól felfelé tölti; régebbi
+szerverrel `null`-ok.
+
 ## v0.2.0
 
 Multi-tenant támogatás. **Nincs breaking change** — aki egyetlen `.env`-es

@@ -87,7 +87,11 @@ Event::listen(function (BoostlyLeadReceived $event) {
     $lead->coupon;           // string|null
     $lead->consentAccepted;  // bool
     $lead->consentText;      // string|null  (GDPR audit)
+    $lead->consentAt;        // string|null  (a beleegyezés ideje, ISO 8601 UTC)
+    $lead->ip;               // string|null  (a feliratkozó IP-je)
+    $lead->userAgent;        // string|null
     $lead->campaignId;
+    $lead->campaignName;     // string|null  (ember által olvasható kampánynév)
     $lead->variantId;
     $lead->siteId;
     $lead->raw;              // a teljes nyers payload
@@ -96,6 +100,10 @@ Event::listen(function (BoostlyLeadReceived $event) {
 
 > A `BoostlyLeadReceived` egy egyszerű event-osztály — kösd hozzá a listenered az
 > `EventServiceProvider`-ben is, ha úgy kényelmesebb.
+
+> A `consentAt`, `ip`, `userAgent` és `campaignName` mezőket a Boostly szerver a
+> payload-bővítő verziótól felfelé tölti; régebbi szerverrel ezek `null`-ok
+> (a csomag visszafelé kompatibilis).
 
 ### Aláírás-ellenőrzés
 
