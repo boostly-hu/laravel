@@ -20,12 +20,12 @@ php artisan vendor:publish --tag=boostly-config
 `.env`:
 
 ```dotenv
-BOOSTLY_URL=https://a-sajat-boostly-domained
+BOOSTLY_URL=https://boostly.hu
 BOOSTLY_SITE_TOKEN=az-oldalad-publikus-tokenje
 BOOSTLY_WEBHOOK_SECRET=a-webhook-vegpont-titka
 ```
 
-- **`BOOSTLY_URL`** — a **saját** Boostly példányod alap-URL-je (az a cím, ahol a Boostly admint eléred; innen töltődik a `snippet.js`).
+- **`BOOSTLY_URL`** — a Boostly alap-URL-je (innen töltődik a `snippet.js`). Alapból `https://boostly.hu`, így általában el is hagyható; csak saját példánynál kell felülírni.
 - **`BOOSTLY_SITE_TOKEN`** — az oldalhoz tartozó publikus token (Boostly admin → oldal).
 - **`BOOSTLY_WEBHOOK_SECRET`** — a webhook-végpont titka (Boostly admin → webhook). Enélkül
   minden beérkező webhook **403**-at kap.

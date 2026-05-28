@@ -7,14 +7,13 @@ return [
     | Boostly app URL
     |--------------------------------------------------------------------------
     |
-    | A SAJÁT Boostly példányod alap-URL-je, ahonnan a snippet.js
-    | betöltődik és az API kiszolgálódik (az a cím, ahol a Boostly admint
-    | eléred). Záró perjel nélkül vagy azzal is jó. Kötelező beállítani —
-    | enélkül a @boostlySnippet üres marad.
+    | A Boostly alap-URL-je, ahonnan a snippet.js betöltődik és az API
+    | kiszolgálódik. Alapból a hostolt Boostly (https://boostly.hu) — ezt
+    | csak akkor írd felül, ha saját példányt futtatsz.
     |
     */
 
-    'url' => env('BOOSTLY_URL'),
+    'url' => env('BOOSTLY_URL', 'https://boostly.hu'),
 
     /*
     |--------------------------------------------------------------------------
